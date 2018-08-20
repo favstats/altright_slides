@@ -136,14 +136,14 @@ blockquote {
   padding-left: 1em;
 }
 table {
-  margin: auto;
+  /*margin: auto;*/
   border-top: 1px solid #666;
   border-bottom: 1px solid #666;
 }
 table thead th { border-bottom: 1px solid #ddd; }
-th, td { padding: 5px; }
+/*th, td { padding: 5px; }
 thead, tfoot, tr:nth-child(even) { background: #BDBDBD }
-table.dataTable tbody {
+ table.dataTable tbody {
   background-color: #FFFFFF;
   color: #272822;
 }
@@ -161,7 +161,7 @@ table.dataTable.hover tbody tr:hover, table.dataTable.display tbody tr:hover {
 }
 .dataTables_wrapper .dataTables_paginate .paginate_button {
   color: #272822 !important;
-}
+}*/
 
 @page { margin: 0; }
 @media print {

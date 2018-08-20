@@ -1,6 +1,6 @@
 ---
 title: "Decoding the Alt-Right"
-subtitle: "A Machine Learning Project <br> <br> <font size='6'>Simon Roth^[] & Fabio Votta^[] <br> 2018-20-08</font>"
+subtitle: "Analyzing Online Toxicity on Social Media <br> <br> <font size='6'>Simon Roth^[] & Fabio Votta^[] <br> 2018-20-08</font>"
 author: "<sup>1</sup> E-Mail: nomis.roth@gmx.com <br> <sup>2</sup> E-Mail: fabio.votta@gmail.com"
 date: "<br> Slides: <a href='decoding-the-altright.netlify.com'>https://decoding-the-altright.netlify.com/ </a>"
 output:
@@ -12,7 +12,9 @@ output:
       highlightLines: true
       countIncrementalSlides: false
 ---
+class: center, middle
 
+## What is the Alt-Right?
 
 <style>
 .onehundredtwenty {
@@ -46,39 +48,11 @@ output:
 # include=FALSE
 options(htmltools.dir.version = FALSE)
 
-pacman::p_load(dplyr, ggplot2,  ggthemes, xaringan, tidyTX, viridis)
+pacman::p_load(dplyr, ggplot2,  ggthemes, xaringan, tidyTX, viridis, purrr)
 
 knitr::opts_chunk$set(echo = F, warning = F, error = F, message = F)
 ```
 
-
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-
-.onehundredtwenty[
-
-Goal:
-
-> How do Alt-Right and Media interact online 
-
-]
-
----
-
-class: inverse, center, middle
-
-## Get Started
-
----
-class: inverse, center, middle
-
-## What is the Alt-Right?
 
 ---
 class: center, middle
@@ -88,32 +62,6 @@ class: center, middle
 **Non-ironic Nazism masquerading as ironic Nazism.**
 
 ~Andrew Anglin, Founder of the *The Daily Stormer*
-
-]
-
-
----
-
-.eightyfive[
-
-**Milo Yiannopolous' characterization of the Alt-Right:** $^1$
-
-> *The alt-right is a movement born out of the youthful, subversive, **underground edges of the internet**. 4chan and 8chan are hubs of alt-right activity. For years, members of these forums – political and non-political – have delighted in **attention-grabbing, juvenile pranks**. Long before the alt-right, 4channers turned **trolling** the national media into an in-house sport.*
-
-**Marwick and Lewis 2017**
-
-> *Term coined by Richard Spencer to describe a version of **white nationalism** that positions itself as comprised of **younger, wealthier, and better-educated individuals** than traditional white supremacist groups like the Klu Klux Klan. Deeply entwined with social media and staples of **internet culture, like memes**. Believes that **“political correctness” threatens individual liberty**. Example: Jared Taylor of the American Renaissance, Mike Cernovich of Danger and Play.*
-
-**Hawley 2017**
-
-> *Using the loosest definition, we could say the Alt-Right includes anyone with right-wing sensibilities that **rejects the mainstream conservative movement**. But there are certain common, perhaps universal attitudes within the Alt-Right. The Alt-Right is **fundamentally concerned with race**. At its core, the Alt-Right is a white-nationalist movement, even if many (perhaps most) of the people who identify with the Alt-Right do not care for that term. The most energetic and significant figures of the movement want to see the creation of a **white ethnostate** in North America.*
-
-]
-
-.seventy[
-
-$^1$Allum Bokhari and Milo Yiannopoulos, “An Establishment Conservative’s Guide to the Alt-Right,”
-Breitbart, March 29, 2016, http://www.breitbart.com/tech/2016/03/29/an-establishment-conservatives-guide-to-the-alt-right/.
 
 ]
 
@@ -294,12 +242,461 @@ social_media_plot %>%
 ```
 
 
+
 ---
 
-## Total Number of Posts and Comments
+
+class: inverse, center, middle
+
+## Language Modeling: Toxicity
+
+---
+
+### Language Predictions
+
+** Data**
+
+* Cooperation between Wikipedia and Jigsaw
+* Five thousand crowd-workers were involved
+* Approx. 160k comments annotated with **toxicity** scores
+* The dataset is documented [here](https://meta.wikimedia.org/wiki/Research:Detox/Data_Release).
+
+<center>
+<img src = "../images/jigsaw.png" width = 200>
+</center>
+
+**Machine Learning**
+
+* Balanced data to 30.000
+* Text Normalization
+* Different Keras Models (Accuracy ~90%)
+* Prediction scores (*toxicity*) for each comment in the entire corpus 
+
+---
+
+class: inverse, center, middle
+
+## User Activity Types
+
+### How do Media and Alt-Right interact online?
+
+
+---
+
+## Differentiating between User Activity Types
+
+
+```{r audience_hist, fig.width = 12, height = 10}
+load("../data/audience_hist_dat.Rdata")
+load("../data/user_type_count.Rdata")
+
+n_dat <- user_type_count %>% 
+  mutate(nn = format(round(nn / 1000000, digits = 2), nsmall = 2) %>% as.character %>% paste0(., "m")) %>% 
+  mutate(x = user_type_num %>% as.character  %>% as.numeric) %>% 
+  mutate(x = x / 10) %>% 
+  select(-user_type_num)
+
+n_dat <- audience_hist_dat %>% 
+  mutate(intercepts = round(x, 1)) %>%
+  mutate(boundaries = intercepts - .05)  %>%
+  mutate(boundaries = ifelse(boundaries < 0, .05, boundaries)) %>%
+  group_by(intercepts) %>% 
+  summarise(y = max(y) + 0.1) %>% 
+  select(y) %>% cbind(n_dat, .)
+
+audience_hist_dat %>% 
+  mutate(intercepts = round(x, 1)) %>%
+  mutate(boundaries = intercepts - .05)  %>%
+  mutate(boundaries = ifelse(boundaries < 0, .05, boundaries)) %>% 
+  # mutate(intercepts = ifelse(x > .99, 1, intercepts)) %>% 
+  ggplot(aes(x = x, y = y)) +
+  geom_line(color = NA) +
+  geom_ribbon(aes(x = x, ymax = y, fill = intercepts, group = intercepts), ymin = 0, alpha = 0.3) +
+  geom_vline(aes(xintercept = boundaries), linetype = "dashed") +
+  #geom_text(data = n_dat, aes(label = nn)) +
+  guides(fill = F) +
+  viridis::scale_fill_viridis(option = "D", direction = -1) +
+  theme_void() +
+  labs(x = "\nPercentage of Posts on Alt-Right pages (0% = Media Only; 100% = Alt-Right Only)", y = "Density\n") +
+  scale_x_continuous(labels = scales::percent, breaks = seq(0, 1, .1), position = "top", sec.axis = dup_axis()) +
+  theme(
+        axis.text = element_text(size = 12),
+        axis.title = element_text(size = 16),
+        axis.ticks.y = element_blank(),
+        axis.text.y = element_text(angle = 90), 
+        axis.title.x = element_text(margin = margin(b = 25)),
+        axis.title.x.bottom = element_blank(),
+        axis.title.y = element_text(angle = 90)
+        )
+```
+
+
+---
+
+### Shared Active Users: Alt-Right Profiles and Media Outlets
+
+<center><img src="../images/audience_graph.png" width = 940></center>
+
+
+---
+
+### Multilevel Logit Regression:
+
+```{r model1, fig.cap = "Random Intercept (User Audience) and random slope for Altright/Media", fig.width=12, height = 10}
+load("../data/model_1_data.Rdata")
+
+
+pr <- function(log_odds){
+  exp(log_odds)/(1+exp(log_odds))
+  #log(log_odds)
+}
+
+
+
+model_1_data %>% 
+  #na.omit() %>% 
+  group_by(user_type_num, media_typ) %>% 
+  dplyr::summarise(
+    sdfitted = sd(mfitted, na.rm = T),
+    mfitted = mean(mfitted, na.rm = T), 
+    n = sum(n),
+    nn = n()
+  ) %>% 
+  ungroup %>% 
+  mutate(
+    low = (mfitted - 2*sdfitted) %>% pr,
+    high = (mfitted + 2*sdfitted) %>% pr
+  ) %>% 
+  mutate(
+    mfitted = pr(mfitted)
+    #sdfitted = sdfitted
+  ) %>%
+  #mutate(user_type_num = factor(user_type_num, levels = c("altright", "mixed", "media"))) %>% 
+  mutate(media_typ = ifelse(media_typ == 0, "Media", "Alt-Right") %>% 
+        factor(., levels = c("Media", "Alt-Right"))) %>% 
+  mutate(user_type_num = as.numeric(user_type_num) / 10 - 0.1) %>% 
+  ggplot(aes(user_type_num, mfitted)) +
+  geom_ribbon(aes(x = user_type_num, ymin = low, ymax = high), alpha = 0.6, fill = "lightgray") +
+  geom_line(aes(as.numeric(user_type_num), mfitted)) +
+  geom_point(size = 3.5, alpha = 0.8) +
+  scale_x_continuous(labels = scales::percent, breaks = seq(0, 1, .1)) +
+  #geom_violin() +
+  facet_wrap(~media_typ, ncol = 2) + 
+  theme_hc() +
+  scale_size_continuous("") +
+  # scale_colour_gradientn("Average Toxicity", 
+  #                             colours = viridis(256, 
+  #                                               alpha = .7,
+  #                                               option = "magma",
+  #                                               direction = -1)) +
+  # viridis::scale_color_viridis("Average Toxicity", option = "A", direction = -1, begin = 0.05, end = 0.7) +
+  labs(x = "\nPercentage of Posts on Alt-Right pages (0% = Media Only; 100% = Alt-Right Only)", y = "Predicted Probability: Toxicity\n") +
+  theme(panel.spacing = unit(2, "lines"), 
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 16),  
+        strip.text = element_text(size = 16),
+        legend.position = "bottom",
+        legend.key.width = unit(2,"cm"),
+        legend.title = element_text(size = 12, face = "bold"),
+        plot.title = element_text(size = 20, margin = margin(b = 10))) + 
+  guides(
+    color = guide_colorbar(order = 1),
+    fill = guide_legend(order = 0)
+  ) +
+  ggtitle("Difference in Toxicity on Media and Alt-Right pages by  User Type")
+```
+
+---
+
+background-image: url("../images/toxic_graph.png")
+background-position: 50% 50%
+background-size: 110%
+class: center, top
+
+## The Flow of Toxicity
+
+---
+
+## Average Toxicity by Day
 
 <br>
 
+```{r, fig.height=8, fig.width=14, fig.align="center"}
+event_toxic <- function(){
+  list(
+    geom_vline(xintercept = as.Date("2017-01-21"), linetype = "dashed", color = "darkgrey", size = 0.7), # Trump Inauguration
+    #geom_vline(xintercept = as.Date("2017-01-28"), linetype = "dashed", color = "darkgrey", size = 0.7), # Trump Muslim Ban
+    geom_vline(xintercept = as.Date("2017-02-02"), linetype = "dashed", color = "darkgrey", size = 0.7), # Berkeley Riot Milo
+    geom_vline(xintercept = as.Date("2017-03-23"), linetype = "dashed", color = "darkgrey", size = 0.7), # Westminster
+    # geom_vline(xintercept = as.Date("2017-04-07"), linetype = "dashed", color = "darkgrey"), # Syria strikes
+    geom_vline(xintercept = as.Date("2017-05-23"), linetype = "dashed", color = "darkgrey", size = 0.7), # Manchaster concert bombing
+    # geom_vline(xintercept = as.Date("2017-06-04"), linetype = "dashed", color = "darkgrey", size = 0.7), # London Bridge
+    geom_vline(xintercept = as.Date("2017-06-11"), linetype = "dashed", color = "darkgrey", size = 0.7), # Sharia March
+    # geom_vline(xintercept = as.Date("2017-07-06"), linetype = "dashed", color = "darkgrey", size = 0.7), # Charlottesville
+    geom_vline(xintercept = as.Date("2017-08-13"), linetype = "dashed", color = "darkgrey", size = 0.7), # Charlottesville
+    # geom_vline(xintercept = as.Date("2017-08-17"), linetype = "dashed", color = "darkgrey"), # Barcelona
+    geom_vline(xintercept = as.Date("2017-11-01"), linetype = "dashed", color = "darkgrey", size = 0.7), # NY Truck Attack
+    geom_vline(xintercept = as.Date("2017-11-29"), linetype = "dashed", color = "darkgrey", size = 0.7) # Trump retweet
+    # geom_vline(xintercept = as.Date("2017-12-15"), linetype = "dashed", color = "darkgrey"), # Net Neutrality
+    # geom_vline(xintercept = as.Date("2017-12-06"), linetype = "dashed", color = "darkgrey"), # NY Truck Attack
+    # geom_vline(xintercept = as.Date("2017-12-18"), linetype = "dashed", color = "darkgrey"), # Twitterpurge
+  )
+}
+
+load("../data/toxic_timeline.Rdata")
+
+pal <- viridis::viridis_pal(option = "B", begin = 0, end = 1, direction = -1)(10)
+
+top <- .445
+mid <- .430
+low <- .415
+
+key_dates <- tibble(
+     cdate = c(
+               as.Date("2017-01-21"), 
+               # as.Date("2017-01-28"), 
+               as.Date("2017-02-02"),
+               as.Date("2017-03-23"),
+               as.Date("2017-05-23"),
+               # as.Date("2017-06-04"),
+               as.Date("2017-06-11"),
+               as.Date("2017-08-13"),
+               as.Date("2017-11-01"),
+               as.Date("2017-11-29")
+               ),
+    event = c(
+               "Trump Inaug.", 
+               # "Muslim Ban",
+               "Berkeley Riots",
+               "Westminster", 
+               "Manchester",
+               # "London Bridge",
+               "March A. Sharia",
+               "Charlottesville",
+               "New York",
+               "Britain First Retweet"
+               ),
+    toxic = c(top, 
+              #mid, 
+              low, mid, top, 
+              # mid, 
+              low, mid, top, low
+              #.4, .4, .4, .4,. 4
+              ))
+
+
+
+toxic_timeline %>%
+  mutate(type = ifelse(type == "media", "Media", "Alt-Right")) %>% 
+  ggplot(aes( x = cdate, y = toxic)) +
+  event_toxic() +
+  geom_line(aes(color = type), size = 1.4, alpha = .7) + 
+  theme_hc() +
+  labs(y = "Average Toxicity\n", x = "") +
+  scale_x_date(date_labels = "%b", date_breaks  = "1 months")  +
+  geom_text(data = key_dates, aes(label = event), angle = 0, vjust = 1.5, size = 5.2, fontface = "bold") +
+  geom_point(data = key_dates, size = 4) +
+  scale_color_manual("Type", values = c("red", "blue")) +
+  # ylim(0, 80000) +
+  # guides(color = F, text = F)  +
+  theme(legend.position = "bottom", 
+        axis.text = element_text(size = 15),
+        axis.title = element_text(size = 17),
+        # legend.key.width = unit(2,"cm"),
+        legend.key.height = unit(2,"cm"),
+        legend.title = element_text(size = 15, face = "bold", hjust = 0.5),
+        legend.text = element_text(size = 15)
+        ) +
+  xlim(as.Date("2017-01-01"), as.Date("2017-12-31"))
+
+
+```
+
+---
+background-image: url("../images/year_toxic.gif")
+background-position: 50% 50%
+background-size: 110%
+class: center, top
+
+## The Flow of Toxicity over time
+
+---
+
+class: inverse, center, middle
+
+## Content Analysis
+
+---
+
+### Multilevel Logit Regression: 
+
+```{r model3, fig.cap = "Random Intercept (User Audience) and random slope for Racial Mentionings", fig.width=12, height = 10}
+load("../data/model_2_data.Rdata")
+pr <- function(log_odds){
+  exp(log_odds)/(1+exp(log_odds))
+  #log(log_odds)
+}
+
+model_2_data %>% 
+  #na.omit() %>% 
+  group_by(user_type_num, keyword, count) %>% 
+  dplyr::summarise(
+    sdfitted = sd(mfitted, na.rm = T),
+    mfitted = mean(mfitted, na.rm = T), 
+    n = sum(n),
+    nn = n()
+  ) %>% 
+  ungroup %>% 
+  mutate(
+    low = (mfitted - 2*sdfitted) %>% pr,
+    high = (mfitted + 2*sdfitted) %>% pr
+  ) %>% 
+  mutate(
+    mfitted = pr(mfitted)
+    #sdfitted = sdfitted
+  ) %>%
+  mutate(keyword = forcats::fct_recode(keyword, 
+      Immigrants = "immigrant",
+      Jews = "jews",
+      `Black People` = "black",
+      Muslims = "muslim"
+    )
+  ) %>% 
+  mutate(keyword = factor(keyword,
+                          levels = c("Immigrants",
+                                     "Jews",
+                                     "Black People",
+                                     "Muslims"))) %>%
+  # mutate(mfitted = mfitted %>% as.numeric)
+  mutate(user_type_num = as.numeric(user_type_num)/10) %>% 
+  ggplot(aes(user_type_num, mfitted, group = as.factor(count))) +
+  geom_ribbon(aes(x = user_type_num, ymin = low, ymax = high), 
+              alpha = 0.6, fill = "lightgray") +
+  geom_point(size = 2, alpha = 0.7, aes(colour = as.factor(count))) +
+  geom_line() +
+  facet_wrap(~keyword, ncol = 4) +
+  theme_hc()  +
+  scale_x_continuous(labels = scales::percent, breaks = seq(0, 1, .25), limits = c(0,1)) +
+  scale_colour_manual("Keyword", values = c("blue", "red"), labels = c("not present", "present")) + 
+  labs(x = "\nPercentage of Posts on Alt-Right pages (0% = Media Only; 100% = Alt-Right Only)", y = "Predicted Probability: Toxicity\n") +
+theme(panel.spacing = unit(2, "lines"), 
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 16),  
+        strip.text = element_text(size = 16),
+        legend.position = "top",
+        legend.key.width = unit(2,"cm"),
+        legend.title = element_text(size = 12, face = "bold"),
+        plot.title = element_text(size = 20, margin = margin(b = 10))) + 
+  guides(
+    # color = guide_colorbar(order = 1),
+    fill = guide_legend(order = 0)
+  ) +
+  ggtitle("Difference in Toxicity by User Type and Keywords")
+  
+```
+
+
+
+---
+
+### Most Frequent Bigram Network - Muslims
+
+<center> <img src="../images/muslim_bigram_network.png" width = "95%"> </center>
+
+---
+
+class: inverse, center, middle
+
+## Conclusions
+
+---
+
+
+## Conclusions
+
+* Alt-Right pages exhibit much greater levels of toxicity than Media equivalents
+
+--
+
++ Alt-Right toxicity spikes on days of Trump administration news and major Terror attacks
+
+--
+
++ There is a good share of users that comment both on Alt-Right and Media pages
+
+--
+
++ *Alex Jones* and *Paul Joseph Watson* share a considerable user base with each other as well as with *Fox News* and *CNN*
+  
+--
+
++ Highest levels of toxicity on Media pages are from polarized Alt-Right users
+
+--
+
++ On Alt-Right pages, polarized Media users are almost as toxic as Alt-Right users 
+
+--
+
++ Polarized Alt-Right users use much more toxic language when talking about Immigrants, Black people and Muslims
+
+---
+
+class: inverse, center, middle
+
+
+## Thanks for Listening!
+
+Slides: <a href='decoding-the-altright.netlify.com'>https://decoding-the-altright.netlify.com/ </a>
+
+
+---
+
+## References
+
+Hawley, G. (2017). Making Sense of the Alt-right. Columbia University Press.
+
+Marwick, A., & Lewis, R. (2017). Media manipulation and disinformation online. New York: Data & Society Research Institute.
+
+
+
+---
+
+class: inverse, center, middle
+
+## Appendix
+
+
+---
+
+.eightyfive[
+
+**Milo Yiannopolous' characterization of the Alt-Right:** $^1$
+
+> *The alt-right is a movement born out of the youthful, subversive, **underground edges of the internet**. 4chan and 8chan are hubs of alt-right activity. For years, members of these forums – political and non-political – have delighted in **attention-grabbing, juvenile pranks**. Long before the alt-right, 4channers turned **trolling** the national media into an in-house sport.*
+
+**Marwick and Lewis 2017**
+
+> *Term coined by Richard Spencer to describe a version of **white nationalism** that positions itself as comprised of **younger, wealthier, and better-educated individuals** than traditional white supremacist groups like the Klu Klux Klan. Deeply entwined with social media and staples of **internet culture, like memes**. Believes that **“political correctness” threatens individual liberty**. Example: Jared Taylor of the American Renaissance, Mike Cernovich of Danger and Play.*
+
+**Hawley 2017**
+
+> *Using the loosest definition, we could say the Alt-Right includes anyone with right-wing sensibilities that **rejects the mainstream conservative movement**. But there are certain common, perhaps universal attitudes within the Alt-Right. The Alt-Right is **fundamentally concerned with race**. At its core, the Alt-Right is a white-nationalist movement, even if many (perhaps most) of the people who identify with the Alt-Right do not care for that term. The most energetic and significant figures of the movement want to see the creation of a **white ethnostate** in North America.*
+
+]
+
+.seventy[
+
+$^1$Allum Bokhari and Milo Yiannopoulos, “An Establishment Conservative’s Guide to the Alt-Right,”
+Breitbart, March 29, 2016, http://www.breitbart.com/tech/2016/03/29/an-establishment-conservatives-guide-to-the-alt-right/.
+
+]
+
+---
+
+### Appendix: Total Number of Posts and Comments: Alt-Right
+
+<br>
 
 ```{r, fig.height=8, fig.width=14, fig.align="center"}
 event_terror <- function(){
@@ -348,7 +745,7 @@ load("../data/total_posts.Rdata")
 total_posts %>% 
   ggplot(aes(cdate, n)) +
   event_terror() +
-  geom_line(size = 1.4) +
+  geom_line(size = 1.4, alpha = .7) +
   geom_point(data = key_dates, size = 2) +
   theme_hc() +
   labs(y = "Total Number of Comments and Tweets\n", x = "") +
@@ -363,41 +760,14 @@ total_posts %>%
 # ggsave(filename = "images/timeline_all.png", width = 12, height = 6)
 ```
 
----
 
-
-class: inverse, center, middle
-
-## Language Modeling: Toxicity
 
 ---
 
-### Training Data
+### Appendix: Text Predictions
 
-**TODO**
-
-* update three slides
-* animate toxicity on text
-
---
-
-**Data Source**: Wikipedia comments annotated with **toxicity** scores avaible in as [Kaggle Competition](https://www.kaggle.com/c/jigsaw-toxic-comment-classification-challenge/data). Five thousend crowd-workers were involved in labeling different toxicity and sub-types like personal attacks for approx. 160k comments. The dataset is documented [here](https://meta.wikimedia.org/wiki/Research:Detox/Data_Release).
-
-* balanced data to 30.000
-* Text Normalization
-* logo toxic/Jigsaw
-* ask for other interesting datasets
-
-<center>
-<img src = "../images/jigsaw.png" width = 200>
-</center>
-
----
-
-### Predictions 
-
-* different keras models
-* confusion matrix
+<!-- * different keras models: very complex, millions of parameters and several deep non-linear layers.  -->
+<!-- * global metrics help to understand system performance -->
 
 ```{r, fig.cap="Model Performances", fig.width=13}
 library(tidyverse)
@@ -417,171 +787,181 @@ model_perform %>%
 
 ---
 
-### Explainable AI
+### Appendix: Explainability I
 
-![What does a language model learn?](../images/test_all.png)
+<!-- * Trusting your algorithemn is crusical for adoption, documentation, regulatory oversight and human acceptance. -->
+<!-- * How to? Zoom into individual instances of your data or your predictions and derive local explanations.  -->
+<!-- * open black box algorithms -->
+<!-- * assessing local interpretation of predictions. -->
+<!-- * our examples -->
+<!-- * compare classifier -->
 
-![](../images/compare_classifier.png)
+```{r}
+load("../data/text_predictions.Rdata")
 
-* concept
-* our examples
-* compare classifier
+viz_text <- function(dd){
+  
+  col <- viridis::viridis(5, alpha = .5, option = "magma", begin = .1, end = .7,  direction = -1)
+  tocix_colors <- c(rep("white", 5), col)
+  #plot(rep(1,10),col=tocix_colors, pch=19,cex=2)
+  # colfunc1 <- colorRampPalette(c("white", "white", "#e63900"))
+  colfunc2 <- colorRampPalette(c("black", "black", "gray10"))
+  #colfunc1 <- colorRampPalette(c("black", "gray80", "#e63900"))
+  # sent_colors <- colfunc1(10)
+  text_colors <- colfunc2(10)
+  # colfunc2 <- colorRampPalette(c("white", "#00cc44"))
+  # #sent_colors <- c(colfunc1(6)[-6], colfunc2(6)[-1])
+  # sent_colors <- c(colfunc1(5)[-5], colfunc2(5)[-1])
+  # #sent_colors <- c(colfunc1(6)[-6], colfunc2(6)[-1])
+  # plot(rep(1,10),col=sent_colors, pch=19,cex=2)
+  
+  # get_sent_color <- function(x){
+  #   index <- (x*10) %>% 
+  #     round
+  #   sent_colors[index]
+  # }
+  
+  
+  get_toxic_color <- function(x){
+    index <- (x*10) %>% 
+      round
+    tocix_colors[index]
+  }
+  
+  get_text_color <- function(x){
+    index <- (x*10) %>% 
+      round
+    text_colors[index]
+  }
+  
+  library(shiny)
+  dd %>% 
+    split(1:nrow(.)) %>% 
+    map(~{
+      span(
+        style= paste0("background-color:", get_toxic_color(.x$prob), "; color: ", get_text_color(.x$prob)), paste0(.x$word, " ")
+      )
+    }) %>% 
+    p(.)
+}
+
+
+text_predictions[[1]][[2]] %>% 
+  viz_text
+
+text_predictions[[2]][[2]] %>% 
+  viz_text
+
+text_predictions[[3]][[2]] %>% 
+  viz_text
+
+text_predictions[[4]][[2]] %>% 
+  viz_text
+```
 
 ---
 
-## Average Toxicity by Day
+### Appendix: Explainability II
 
-<br>
+<!-- * open black box algorithms -->
+<!-- * assessing local interpretation of predictions. -->
+<!-- * our examples -->
+<!-- * compare classifier -->
 
-```{r, fig.height=8, fig.width=14, fig.align="center"}
-event_toxic <- function(){
-  list(
-    geom_vline(xintercept = as.Date("2017-01-21"), linetype = "dashed", color = "darkgrey", size = 0.7), # Trump Inauguration
-    geom_vline(xintercept = as.Date("2017-01-28"), linetype = "dashed", color = "darkgrey", size = 0.7), # Trump Muslim Ban
-    geom_vline(xintercept = as.Date("2017-02-02"), linetype = "dashed", color = "darkgrey", size = 0.7), # Berkeley Riot Milo
-    geom_vline(xintercept = as.Date("2017-03-23"), linetype = "dashed", color = "darkgrey", size = 0.7), # Westminster
-    # geom_vline(xintercept = as.Date("2017-04-07"), linetype = "dashed", color = "darkgrey"), # Syria strikes
-    geom_vline(xintercept = as.Date("2017-05-23"), linetype = "dashed", color = "darkgrey", size = 0.7), # Manchaster concert bombing
-    geom_vline(xintercept = as.Date("2017-06-04"), linetype = "dashed", color = "darkgrey", size = 0.7), # London Bridge
-    geom_vline(xintercept = as.Date("2017-06-11"), linetype = "dashed", color = "darkgrey", size = 0.7), # Sharia March
-    geom_vline(xintercept = as.Date("2017-07-06"), linetype = "dashed", color = "darkgrey", size = 0.7), # Charlottesville
-    geom_vline(xintercept = as.Date("2017-08-13"), linetype = "dashed", color = "darkgrey", size = 0.7), # Charlottesville
-    # geom_vline(xintercept = as.Date("2017-08-17"), linetype = "dashed", color = "darkgrey"), # Barcelona
-    geom_vline(xintercept = as.Date("2017-11-01"), linetype = "dashed", color = "darkgrey", size = 0.7), # NY Truck Attack
-    geom_vline(xintercept = as.Date("2017-11-29"), linetype = "dashed", color = "darkgrey", size = 0.7) # Trump retweet
-    # geom_vline(xintercept = as.Date("2017-12-15"), linetype = "dashed", color = "darkgrey"), # Net Neutrality
-    # geom_vline(xintercept = as.Date("2017-12-06"), linetype = "dashed", color = "darkgrey"), # NY Truck Attack
-    # geom_vline(xintercept = as.Date("2017-12-18"), linetype = "dashed", color = "darkgrey"), # Twitterpurge
+
+```{r}
+load("../data/com_list.Rdata")
+
+viz_comp <- function(tab_data){
+    col <- viridis::viridis(5, alpha = .5, option = "magma", begin = .1, end = .7,  direction = -1)
+  tocix_colors <- c(rep("white", 5), col)
+  #plot(rep(1,10),col=tocix_colors, pch=19,cex=2)
+  # colfunc1 <- colorRampPalette(c("white", "white", "#e63900"))
+  colfunc2 <- colorRampPalette(c("black", "black", "gray10"))
+  #colfunc1 <- colorRampPalette(c("black", "gray80", "#e63900"))
+  # sent_colors <- colfunc1(10)
+  text_colors <- colfunc2(10)
+  # colfunc2 <- colorRampPalette(c("white", "#00cc44"))
+  # #sent_colors <- c(colfunc1(6)[-6], colfunc2(6)[-1])
+  # sent_colors <- c(colfunc1(5)[-5], colfunc2(5)[-1])
+  # #sent_colors <- c(colfunc1(6)[-6], colfunc2(6)[-1])
+  # plot(rep(1,10),col=sent_colors, pch=19,cex=2)
+  
+  # get_sent_color <- function(x){
+  #   index <- (x*10) %>% 
+  #     round
+  #   sent_colors[index]
+  # }
+  
+  
+  get_toxic_color <- function(x){
+    index <- (x*10) %>% 
+      round
+    tocix_colors[index]
+  }
+  
+  get_text_color <- function(x){
+    index <- (x*10) %>% 
+      round
+    text_colors[index]
+  }
+  
+  tagList(
+    HTML("<center>"),
+    shiny::tags$table(id = "tab1", style = 'font-size: 14px',
+      class="ui compact table",
+      shiny::tags$thead(
+        shiny::tags$tr(
+          colnames(tab_data) %>% 
+            map(~{
+              shiny::tags$th(.x)
+            })
+        ) 
+      ),
+      shiny::tags$tbody(
+        tab_data %>% 
+          split(1:nrow(.)) %>%
+          map(~{
+            shiny::tags$tr(
+              .x %>% 
+                unlist %>% 
+                map(~{
+                  shiny::tags$th(
+                    if(!is.na(as.numeric(.x))){
+                      div(
+                        style = paste0("background-color:", get_toxic_color(as.numeric(.x))), 
+                        .x
+                      )   
+                    } else {
+                      .x
+                    }
+                  )
+                })
+            )
+          })
+      )
+    ),
+    HTML("</center>")
   )
 }
 
-load("../data/toxic_timeline.Rdata")
-
-pal <- viridis::viridis_pal(option = "B", begin = 0, end = 1, direction = -1)(10)
-
-top <- .445
-mid <- .430
-low <- .415
-
-key_dates <- tibble(
-     cdate = c(
-               as.Date("2017-01-21"), 
-               as.Date("2017-01-28"), 
-               as.Date("2017-02-02"),
-               as.Date("2017-03-23"),
-               as.Date("2017-05-23"),
-               as.Date("2017-06-04"),
-               as.Date("2017-06-11"),
-               as.Date("2017-08-13"),
-               as.Date("2017-11-01"),
-               as.Date("2017-11-29")
-               ),
-    event = c(
-               "Trump Inaug.", 
-               "Muslim Ban",
-               "Berkeley Riots",
-               "Westminster", 
-               "Manchester",
-               "London Bridge",
-               "March A. Sharia",
-               "Charlottesville",
-               "New York",
-               "Britain First Retweet"
-               ),
-    toxic = c(top, mid, low, mid, top, mid, low, mid, top, mid
-              #.4, .4, .4, .4,. 4
-              ))
-
-
-
-toxic_timeline %>%
-  mutate(type = ifelse(type == "media", "Media", "Alt-Right")) %>% 
-  ggplot(aes( x = cdate, y = toxic)) +
-  event_toxic() +
-  geom_line(aes(color = type), size = 1.4) + 
-  theme_hc() +
-  labs(y = "Average Toxicity\n", x = "") +
-  scale_x_date(date_labels = "%b", date_breaks  = "1 months")  +
-  geom_text(data = key_dates, aes(label = event), angle = 0, vjust = 1.5, size = 5.2, fontface = "bold") +
-  geom_point(data = key_dates, size = 4) +
-  scale_color_manual("Type", values = c(pal[8], pal[4])) +
-  # ylim(0, 80000) +
-  # guides(color = F, text = F)  +
-  theme(legend.position = "bottom", 
-        axis.text = element_text(size = 15),
-        axis.title = element_text(size = 17),
-        # legend.key.width = unit(2,"cm"),
-        legend.key.height = unit(2,"cm"),
-        legend.title = element_text(size = 15, face = "bold", hjust = 0.5),
-        legend.text = element_text(size = 15)
-        ) +
-  xlim(as.Date("2017-01-01"), as.Date("2017-12-31"))
-
-
+com_list[[2]][[2]] %>% 
+  viz_comp
 ```
 
-
-
----
-
-class: inverse, center, middle
-
-## User Activity
-
-### How do Media and Alt-Right interact online?
-
+<!-- <center> -->
+<!-- <img src = "images/mbo_search.png" width = "80%"> -->
+<!-- </center> -->
 
 ---
 
-## Differentiating between User Activity Types
-
-
-```{r audience_hist, fig.width = 12, height = 10}
-load("../data/audience_hist_dat.Rdata")
-
-audience_hist_dat %>% 
-  mutate(intercepts = ifelse(x < .1, .1, intercepts)) %>% 
-  # mutate(intercepts = ifelse(x > .99, 1, intercepts)) %>% 
-  ggplot(aes(x = x, y = y, fill = intercepts, group = intercepts)) +
-  geom_line(color = NA) +
-  geom_ribbon(aes(x = x, ymax = y), ymin = 0, alpha = 0.3) +
-  geom_vline(aes(xintercept = intercepts), linetype = "dashed") +
-  guides(fill = F) +
-  viridis::scale_fill_viridis(option = "D", direction = -1) +
-  theme_void() +
-  labs(x = "\nPercentage of Posts on Alt-Right pages (0% = Media Only; 100% = Altright Only)", y = "Density\n") +
-  scale_x_continuous(labels = scales::percent, breaks = seq(0, 1, .1), position = "top", sec.axis = dup_axis()) +
-  theme(
-        axis.text = element_text(size = 12),
-        axis.title = element_text(size = 16),
-        axis.ticks.y = element_blank(),
-        axis.text.y = element_text(angle = 90), 
-        axis.title.x = element_text(margin = margin(b = 25)),
-        axis.title.x.bottom = element_blank(),
-        axis.title.y = element_text(angle = 90)
-        ) 
-
-```
-
-
----
-
-### Shared Active Users: Alt-Right Profiles and Media Outlets
-
-<center><img src="../images/audience_graph.png" width = 940></center>
-
-
----
-
-### Multilevel Logit Regression: 
+### Appendix: Nullmodel
 
 
 ```{r model0, fig.cap = "Random Intercept (User Audience)", fig.width=12, height = 10}
 load("../data/null_data.Rdata")
 
 pal <- viridis::viridis_pal(option = "B", begin = 0, end = 1, direction = -1)(10)
-
-
 
 pr <- function(log_odds){
   exp(log_odds)/(1+exp(log_odds))
@@ -616,7 +996,7 @@ null_data %>%
   scale_x_continuous(labels = scales::percent, breaks = seq(0, 1, .1)) +
   #geom_violin() 
   # viridis::scale_color_viridis("Average Toxicity", option = "A", direction = -1, begin = 0.05, end = 0.7) +
-  labs(x = "\nPercentage of Posts on Alt-Right pages (0% = Media Only; 100% = Altright Only)", y = "Predicted Probability: Toxicity\n") +
+  labs(x = "\nPercentage of Posts on Alt-Right pages (0% = Media Only; 100% = Alt-Right Only)", y = "Predicted Probability: Toxicity\n") +
   #facet_wrap(~media_typ, ncol = 2) + 
   theme_hc() +
   scale_size_continuous("") +
@@ -643,263 +1023,12 @@ null_data %>%
 
 ---
 
-### Multilevel Logit Regression:
-
-```{r model1, fig.cap = "Random Intercept (User Audience) and random slope for Altright/Media", fig.width=12, height = 10}
-load("../data/model_1_data.Rdata")
-
-
-pr <- function(log_odds){
-  exp(log_odds)/(1+exp(log_odds))
-  #log(log_odds)
-}
-
-
-
-model_1_data %>% 
-  #na.omit() %>% 
-  group_by(user_type_num, media_typ) %>% 
-  dplyr::summarise(
-    sdfitted = sd(mfitted, na.rm = T),
-    mfitted = mean(mfitted, na.rm = T), 
-    n = sum(n),
-    nn = n()
-  ) %>% 
-  ungroup %>% 
-  mutate(
-    low = (mfitted - 2*sdfitted) %>% pr,
-    high = (mfitted + 2*sdfitted) %>% pr
-  ) %>% 
-  mutate(
-    mfitted = pr(mfitted)
-    #sdfitted = sdfitted
-  ) %>%
-  #mutate(user_type_num = factor(user_type_num, levels = c("altright", "mixed", "media"))) %>% 
-  mutate(media_typ = ifelse(media_typ == 0, "Media", "Altright") %>% 
-        factor(., levels = c("Media", "Altright"))) %>% 
-  mutate(user_type_num = as.numeric(user_type_num) / 10 - 0.1) %>% 
-  ggplot(aes(user_type_num, mfitted)) +
-  geom_ribbon(aes(x = user_type_num, ymin = low, ymax = high), alpha = 0.6, fill = "lightgray") +
-  geom_line(aes(as.numeric(user_type_num), mfitted)) +
-  geom_point(size = 3.5, alpha = 0.8) +
-  scale_x_continuous(labels = scales::percent, breaks = seq(0, 1, .1)) +
-  #geom_violin() +
-  facet_wrap(~media_typ, ncol = 2) + 
-  theme_hc() +
-  scale_size_continuous("") +
-  # scale_colour_gradientn("Average Toxicity", 
-  #                             colours = viridis(256, 
-  #                                               alpha = .7,
-  #                                               option = "magma",
-  #                                               direction = -1)) +
-  # viridis::scale_color_viridis("Average Toxicity", option = "A", direction = -1, begin = 0.05, end = 0.7) +
-  labs(x = "\nPercentage of Posts on Alt-Right pages (0% = Media Only; 100% = Altright Only)", y = "Predicted Probability: Toxicity\n") +
-  theme(panel.spacing = unit(2, "lines"), 
-        axis.text = element_text(size = 10),
-        axis.title = element_text(size = 16),  
-        strip.text = element_text(size = 16),
-        legend.position = "bottom",
-        legend.key.width = unit(2,"cm"),
-        legend.title = element_text(size = 12, face = "bold"),
-        plot.title = element_text(size = 20, margin = margin(b = 10))) + 
-  guides(
-    color = guide_colorbar(order = 1),
-    fill = guide_legend(order = 0)
-  ) +
-  ggtitle("Difference in Toxicity on Media and Alt-Right pages by  User Type")
-
-```
-
----
-
-background-image: url("../images/toxic_graph.png")
-background-position: 50% 50%
-background-size: 110%
-class: center, top
-
-## The Flow of Toxicity
-
-
----
-
-class: inverse, center, middle
-
-## Content Analysis
-
-### What does the Alt-Right talk about and how?
-
-
----
-
-### Multilevel Logit Regression: 
-
-
-```{r model3, fig.cap = "Random Intercept (User Audience) and random slope for Racial Mentionings", fig.width=12, height = 10}
-load("../data/model_2_data.Rdata")
-pr <- function(log_odds){
-  exp(log_odds)/(1+exp(log_odds))
-  #log(log_odds)
-}
-
-model_2_data %>% 
-  #na.omit() %>% 
-  group_by(user_type_num, keyword, count) %>% 
-  dplyr::summarise(
-    sdfitted = sd(mfitted, na.rm = T),
-    mfitted = mean(mfitted, na.rm = T), 
-    n = sum(n),
-    nn = n()
-  ) %>% 
-  ungroup %>% 
-  mutate(
-    low = (mfitted - 2*sdfitted) %>% pr,
-    high = (mfitted + 2*sdfitted) %>% pr
-  ) %>% 
-  mutate(
-    mfitted = pr(mfitted)
-    #sdfitted = sdfitted
-  ) %>%
-  mutate(keyword = forcats::fct_recode(keyword, 
-      Immigrants = "immigrant",
-      Jews = "jews",
-      `Black People` = "black",
-      Muslims = "muslim"
-    )
-  ) %>% 
-  mutate(keyword = factor(keyword,
-                          levels = c("Immigrants",
-                                     "Jews",
-                                     "Black People",
-                                     "Muslims"))) %>%
-  # mutate(mfitted = mfitted %>% as.numeric)
-  mutate(user_type_num = as.numeric(user_type_num)/10) %>% 
-  ggplot(aes(user_type_num, mfitted, group = as.factor(count))) +
-  geom_ribbon(aes(x = user_type_num, ymin = low, ymax = high), 
-              alpha = 0.6, fill = "lightgray") +
-  geom_point(size = 3.5, alpha = 0.8) +
-  geom_line() +
-  facet_wrap(~keyword, ncol = 4) +
-  theme_hc()  +
-  scale_x_continuous(labels = scales::percent, breaks = seq(0, 1, .25), limits = c(0,1)) +
-  labs(x = "\nPercentage of Posts on Alt-Right pages (0% = Media Only; 100% = Altright Only)", y = "Predicted Probability: Toxicity\n") +
-  theme(panel.spacing = unit(2, "lines"), 
-        axis.text = element_text(size = 10),
-        axis.title = element_text(size = 16),  
-        strip.text = element_text(size = 16),
-        legend.position = "bottom",
-        legend.key.width = unit(2,"cm"),
-        legend.title = element_text(size = 12, face = "bold"),
-        plot.title = element_text(size = 20, margin = margin(b = 10))) + 
-  guides(
-    color = guide_colorbar(order = 1),
-    fill = guide_legend(order = 0)
-  ) +
-  ggtitle("Difference in Toxicity by User Type and Keywords")
-  # scale_colour_gradientn("Average Toxicity", 
-  #                             colours = viridis(256, 
-  #                                               alpha = .7,
-  #                                               option = "magma",
-  #                                               direction = -1)) 
-  # viridis::scale_color_viridis("Average Toxicity", option = "A", direction = -1, begin = 0.05, end = 0.7)
-  
-```
-
-
-
----
-
-#### Bigram Network: Muslims
-
-<center> <img src="../images/muslim_bigram_network.png" width = "95%"> </center>
-
----
-
-#### Bigram Network: Jews
+#### Appendix: Most Frequent Bigram Network - Jews
 
 <center> <img src="../images/jew_bigram_network.png" width = "95%"> </center>
 
 ---
 
-#### Bigram Network: Migrants
+#### Appendix: Most Frequent Bigram Network - Migrants
 
 <center> <img src="../images/migrant_bigram_network.png" width = "95%"> </center>
-
-
----
-
-## Future Research
-
-*Possible other applications:*
-
-* Tracking stories and misinformation (like the hoax that two Syrian refugees were responsible for the Quebec Mosque Attack)
-
-* Distinguishing between Alt-Light and Alt-Right content
-
----
-
-class: inverse, center, middle
-
-## Conclusions
-
----
-
-
-## Summary
-
-+ Alt-Right activity spikes on days of Trump administration news and major Terror attacks
-
-* Alt-Right pages exhibit much greater levels of toxicity than Media equivalents
-+ There is an overlap between users between Alt-Right and Media pages
-    + different behaviour
-    + different levels of toxicity 
-
-+ *Alex Jones* and *Paul Joseph Watson* seem to be great influencers
-    
-
----
-
-## Conclusions
-
-* Explainable Machine Learning:
-    + AI deletion: problems with uncertainty and ambiguity of language
-    + Algorithms must be responsive and transparent
-    + Highlight content in question and reasons
-    + Need for *human in the loop*
-
-* Ideas 
-    + Include Feedback: possibility to appeal (restricted times)
-    + Cross-checking algorithms to reduce error rate
-
----
-
-class: inverse, center, middle
-
-
-## Thanks for Listening!
-
-Slides: <a href='decoding-the-altright.netlify.com'>https://decoding-the-altright.netlify.com/ </a>
-
-
----
-
-## References
-
-Hawley, G. (2017). Making Sense of the Alt-right. Columbia University Press.
-
-Marwick, A., & Lewis, R. (2017). Media manipulation and disinformation online. New York: Data & Society Research Institute.
-
-
-
----
-
-class: inverse, center, middle
-
-## Appendix
-
----
-
-## Hyperparameter Tuning
-
-<center>
-<img src = "images/mbo_search.png" width = "80%">
-</center>

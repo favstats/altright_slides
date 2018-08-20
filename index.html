@@ -11,13 +11,15 @@
 class: center, middle, inverse, title-slide
 
 # Decoding the Alt-Right
-## A Machine Learning Project <br> <br> <font size='6'>Simon Roth<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> &amp; Fabio Votta<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a> <br> 2018-20-08</font>
+## Analyzing Online Toxicity on Social Media <br> <br> <font size='6'>Simon Roth<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a> &amp; Fabio Votta<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a> <br> 2018-20-08</font>
 ### <sup>1</sup> E-Mail: <a href="mailto:nomis.roth@gmx.com">nomis.roth@gmx.com</a> <br> <sup>2</sup> E-Mail: <a href="mailto:fabio.votta@gmail.com">fabio.votta@gmail.com</a>
 ### <br> Slides: <a href='decoding-the-altright.netlify.com'>https://decoding-the-altright.netlify.com/ </a>
 
 ---
 
+class: center, middle
 
+## What is the Alt-Right?
 
 &lt;style&gt;
 .onehundredtwenty {
@@ -50,34 +52,6 @@ class: center, middle, inverse, title-slide
 
 
 
-&lt;br&gt;
-&lt;br&gt;
-&lt;br&gt;
-&lt;br&gt;
-&lt;br&gt;
-&lt;br&gt;
-&lt;br&gt;
-&lt;br&gt;
-
-.onehundredtwenty[
-
-Goal:
-
-&gt; How do Alt-Right and Media interact online 
-
-]
-
----
-
-class: inverse, center, middle
-
-## Get Started
-
----
-class: inverse, center, middle
-
-## What is the Alt-Right?
-
 ---
 class: center, middle
 
@@ -86,32 +60,6 @@ class: center, middle
 **Non-ironic Nazism masquerading as ironic Nazism.**
 
 ~Andrew Anglin, Founder of the *The Daily Stormer*
-
-]
-
-
----
-
-.eightyfive[
-
-**Milo Yiannopolous' characterization of the Alt-Right:** `\(^1\)`
-
-&gt; *The alt-right is a movement born out of the youthful, subversive, **underground edges of the internet**. 4chan and 8chan are hubs of alt-right activity. For years, members of these forums – political and non-political – have delighted in **attention-grabbing, juvenile pranks**. Long before the alt-right, 4channers turned **trolling** the national media into an in-house sport.*
-
-**Marwick and Lewis 2017**
-
-&gt; *Term coined by Richard Spencer to describe a version of **white nationalism** that positions itself as comprised of **younger, wealthier, and better-educated individuals** than traditional white supremacist groups like the Klu Klux Klan. Deeply entwined with social media and staples of **internet culture, like memes**. Believes that **“political correctness” threatens individual liberty**. Example: Jared Taylor of the American Renaissance, Mike Cernovich of Danger and Play.*
-
-**Hawley 2017**
-
-&gt; *Using the loosest definition, we could say the Alt-Right includes anyone with right-wing sensibilities that **rejects the mainstream conservative movement**. But there are certain common, perhaps universal attitudes within the Alt-Right. The Alt-Right is **fundamentally concerned with race**. At its core, the Alt-Right is a white-nationalist movement, even if many (perhaps most) of the people who identify with the Alt-Right do not care for that term. The most energetic and significant figures of the movement want to see the creation of a **white ethnostate** in North America.*
-
-]
-
-.seventy[
-
-`\(^1\)`Allum Bokhari and Milo Yiannopoulos, “An Establishment Conservative’s Guide to the Alt-Right,”
-Breitbart, March 29, 2016, http://www.breitbart.com/tech/2016/03/29/an-establishment-conservatives-guide-to-the-alt-right/.
 
 ]
 
@@ -254,14 +202,6 @@ class: inverse, center, middle
 &lt;img src="index_files/figure-html/tally2-1.png" style="display: block; margin: auto;" /&gt;
 
 
----
-
-## Total Number of Posts and Comments
-
-&lt;br&gt;
-
-
-&lt;img src="index_files/figure-html/unnamed-chunk-1-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -272,62 +212,31 @@ class: inverse, center, middle
 
 ---
 
-### Training Data
+### Language Predictions
 
-**TODO**
+** Data**
 
-* update three slides
-* animate toxicity on text
-
---
-
-**Data Source**: Wikipedia comments annotated with **toxicity** scores avaible in as [Kaggle Competition](https://www.kaggle.com/c/jigsaw-toxic-comment-classification-challenge/data). Five thousend crowd-workers were involved in labeling different toxicity and sub-types like personal attacks for approx. 160k comments. The dataset is documented [here](https://meta.wikimedia.org/wiki/Research:Detox/Data_Release).
-
-* balanced data to 30.000
-* Text Normalization
-* logo toxic/Jigsaw
-* ask for other interesting datasets
+* Cooperation between Wikipedia and Jigsaw
+* Five thousand crowd-workers were involved
+* Approx. 160k comments annotated with **toxicity** scores
+* The dataset is documented [here](https://meta.wikimedia.org/wiki/Research:Detox/Data_Release).
 
 &lt;center&gt;
 &lt;img src = "../images/jigsaw.png" width = 200&gt;
 &lt;/center&gt;
 
----
+**Machine Learning**
 
-### Predictions 
-
-* different keras models
-* confusion matrix
-
-![Model Performances](index_files/figure-html/unnamed-chunk-2-1.png)
-
----
-
-### Explainable AI
-
-![What does a language model learn?](../images/test_all.png)
-
-![](../images/compare_classifier.png)
-
-* concept
-* our examples
-* compare classifier
-
----
-
-## Average Toxicity by Day
-
-&lt;br&gt;
-
-&lt;img src="index_files/figure-html/unnamed-chunk-3-1.png" style="display: block; margin: auto;" /&gt;
-
-
+* Balanced data to 30.000
+* Text Normalization
+* Different Keras Models (Accuracy ~90%)
+* Prediction scores (*toxicity*) for each comment in the entire corpus 
 
 ---
 
 class: inverse, center, middle
 
-## User Activity
+## User Activity Types
 
 ### How do Media and Alt-Right interact online?
 
@@ -349,13 +258,6 @@ class: inverse, center, middle
 
 ---
 
-### Multilevel Logit Regression: 
-
-
-![Random Intercept (User Audience)](index_files/figure-html/model0-1.png)
-
----
-
 ### Multilevel Logit Regression:
 
 ![Random Intercept (User Audience) and random slope for Altright/Media](index_files/figure-html/model1-1.png)
@@ -369,6 +271,21 @@ class: center, top
 
 ## The Flow of Toxicity
 
+---
+
+## Average Toxicity by Day
+
+&lt;br&gt;
+
+&lt;img src="index_files/figure-html/unnamed-chunk-1-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+background-image: url("../images/year_toxic.gif")
+background-position: 50% 50%
+background-size: 110%
+class: center, top
+
+## The Flow of Toxicity over time
 
 ---
 
@@ -376,13 +293,9 @@ class: inverse, center, middle
 
 ## Content Analysis
 
-### What does the Alt-Right talk about and how?
-
-
 ---
 
 ### Multilevel Logit Regression: 
-
 
 ![Random Intercept (User Audience) and random slope for Racial Mentionings](index_files/figure-html/model3-1.png)
 
@@ -390,32 +303,9 @@ class: inverse, center, middle
 
 ---
 
-#### Bigram Network: Muslims
+### Most Frequent Bigram Network - Muslims
 
 &lt;center&gt; &lt;img src="../images/muslim_bigram_network.png" width = "95%"&gt; &lt;/center&gt;
-
----
-
-#### Bigram Network: Jews
-
-&lt;center&gt; &lt;img src="../images/jew_bigram_network.png" width = "95%"&gt; &lt;/center&gt;
-
----
-
-#### Bigram Network: Migrants
-
-&lt;center&gt; &lt;img src="../images/migrant_bigram_network.png" width = "95%"&gt; &lt;/center&gt;
-
-
----
-
-## Future Research
-
-*Possible other applications:*
-
-* Tracking stories and misinformation (like the hoax that two Syrian refugees were responsible for the Quebec Mosque Attack)
-
-* Distinguishing between Alt-Light and Alt-Right content
 
 ---
 
@@ -426,31 +316,33 @@ class: inverse, center, middle
 ---
 
 
-## Summary
-
-+ Alt-Right activity spikes on days of Trump administration news and major Terror attacks
-
-* Alt-Right pages exhibit much greater levels of toxicity than Media equivalents
-+ There is an overlap between users between Alt-Right and Media pages
-    + different behaviour
-    + different levels of toxicity 
-
-+ *Alex Jones* and *Paul Joseph Watson* seem to be great influencers
-    
-
----
-
 ## Conclusions
 
-* Explainable Machine Learning:
-    + AI deletion: problems with uncertainty and ambiguity of language
-    + Algorithms must be responsive and transparent
-    + Highlight content in question and reasons
-    + Need for *human in the loop*
+* Alt-Right pages exhibit much greater levels of toxicity than Media equivalents
 
-* Ideas 
-    + Include Feedback: possibility to appeal (restricted times)
-    + Cross-checking algorithms to reduce error rate
+--
+
++ Alt-Right toxicity spikes on days of Trump administration news and major Terror attacks
+
+--
+
++ There is a good share of users that comment both on Alt-Right and Media pages
+
+--
+
++ *Alex Jones* and *Paul Joseph Watson* share a considerable user base with each other as well as with *Fox News* and *CNN*
+  
+--
+
++ Highest levels of toxicity on Media pages are from polarized Alt-Right users
+
+--
+
++ On Alt-Right pages, polarized Media users are almost as toxic as Alt-Right users 
+
+--
+
++ Polarized Alt-Right users use much more toxic language when talking about Immigrants, Black people and Muslims
 
 ---
 
@@ -478,13 +370,513 @@ class: inverse, center, middle
 
 ## Appendix
 
+
 ---
 
-## Hyperparameter Tuning
+.eightyfive[
 
-&lt;center&gt;
-&lt;img src = "images/mbo_search.png" width = "80%"&gt;
-&lt;/center&gt;
+**Milo Yiannopolous' characterization of the Alt-Right:** `\(^1\)`
+
+&gt; *The alt-right is a movement born out of the youthful, subversive, **underground edges of the internet**. 4chan and 8chan are hubs of alt-right activity. For years, members of these forums – political and non-political – have delighted in **attention-grabbing, juvenile pranks**. Long before the alt-right, 4channers turned **trolling** the national media into an in-house sport.*
+
+**Marwick and Lewis 2017**
+
+&gt; *Term coined by Richard Spencer to describe a version of **white nationalism** that positions itself as comprised of **younger, wealthier, and better-educated individuals** than traditional white supremacist groups like the Klu Klux Klan. Deeply entwined with social media and staples of **internet culture, like memes**. Believes that **“political correctness” threatens individual liberty**. Example: Jared Taylor of the American Renaissance, Mike Cernovich of Danger and Play.*
+
+**Hawley 2017**
+
+&gt; *Using the loosest definition, we could say the Alt-Right includes anyone with right-wing sensibilities that **rejects the mainstream conservative movement**. But there are certain common, perhaps universal attitudes within the Alt-Right. The Alt-Right is **fundamentally concerned with race**. At its core, the Alt-Right is a white-nationalist movement, even if many (perhaps most) of the people who identify with the Alt-Right do not care for that term. The most energetic and significant figures of the movement want to see the creation of a **white ethnostate** in North America.*
+
+]
+
+.seventy[
+
+`\(^1\)`Allum Bokhari and Milo Yiannopoulos, “An Establishment Conservative’s Guide to the Alt-Right,”
+Breitbart, March 29, 2016, http://www.breitbart.com/tech/2016/03/29/an-establishment-conservatives-guide-to-the-alt-right/.
+
+]
+
+---
+
+### Appendix: Total Number of Posts and Comments: Alt-Right
+
+&lt;br&gt;
+
+&lt;img src="index_files/figure-html/unnamed-chunk-2-1.png" style="display: block; margin: auto;" /&gt;
+
+
+
+---
+
+### Appendix: Text Predictions
+
+&lt;!-- * different keras models: very complex, millions of parameters and several deep non-linear layers.  --&gt;
+&lt;!-- * global metrics help to understand system performance --&gt;
+
+![Model Performances](index_files/figure-html/unnamed-chunk-3-1.png)
+
+---
+
+### Appendix: Explainability I
+
+&lt;!-- * Trusting your algorithemn is crusical for adoption, documentation, regulatory oversight and human acceptance. --&gt;
+&lt;!-- * How to? Zoom into individual instances of your data or your predictions and derive local explanations.  --&gt;
+&lt;!-- * open black box algorithms --&gt;
+&lt;!-- * assessing local interpretation of predictions. --&gt;
+&lt;!-- * our examples --&gt;
+&lt;!-- * compare classifier --&gt;
+
+<p>
+<span style="background-color:#150E3780; color: #1A1A1A">Communist </span>
+<span style="background-color:#150E3780; color: #1A1A1A">control </span>
+<span style="background-color:#150E3780; color: #1A1A1A">freak </span>
+<span style="background-color:#51127C80; color: #141414">engineered </span>
+<span style="background-color:#51127C80; color: #141414">scum </span>
+<span style="background-color:white; color: #000000">situation </span>
+<span style="background-color:white; color: #000000">this </span>
+<span style="background-color:white; color: #000000">attack </span>
+<span style="background-color:white; color: #000000">proves </span>
+<span style="background-color:white; color: #000000">it's </span>
+<span style="background-color:white; color: #000000">all </span>
+<span style="background-color:white; color: #000000">organized </span>
+<span style="background-color:white; color: #000000">ahead </span>
+<span style="background-color:white; color: #000000">of </span>
+<span style="background-color:white; color: #000000">time </span>
+</p><p>
+<span style="background-color:#150E3780; color: #1A1A1A">Shoot </span>
+<span style="background-color:#150E3780; color: #1A1A1A">dat </span>
+<span style="background-color:#150E3780; color: #1A1A1A">nigga </span>
+<span style="background-color:#150E3780; color: #1A1A1A">amp </span>
+<span style="background-color:#150E3780; color: #1A1A1A">his </span>
+<span style="background-color:white; color: #000000">shorty </span>
+<span style="background-color:#150E3780; color: #1A1A1A">bitch </span>
+<span style="background-color:white; color: #000000">shorty </span>
+<span style="background-color:#150E3780; color: #1A1A1A">bitch </span>
+</p><p>
+<span style="background-color:white; color: #000000">VICESports </span>
+<span style="background-color:white; color: #000000">it </span>
+<span style="background-color:white; color: #000000">past </span>
+<span style="background-color:white; color: #000000">your </span>
+<span style="background-color:white; color: #000000">bed </span>
+<span style="background-color:; color: ">time </span>
+<span style="background-color:; color: ">No </span>
+<span style="background-color:; color: ">wonder </span>
+<span style="background-color:#150E3780; color: #1A1A1A">no </span>
+<span style="background-color:#150E3780; color: #1A1A1A">one </span>
+<span style="background-color:#150E3780; color: #1A1A1A">reads </span>
+<span style="background-color:#150E3780; color: #1A1A1A">that </span>
+<span style="background-color:#150E3780; color: #1A1A1A">garbage </span>
+<span style="background-color:#150E3780; color: #1A1A1A">on </span>
+<span style="background-color:#150E3780; color: #1A1A1A">vice </span>
+<span style="background-color:#150E3780; color: #1A1A1A">because </span>
+<span style="background-color:#150E3780; color: #1A1A1A">faggots </span>
+<span style="background-color:#150E3780; color: #1A1A1A">like </span>
+<span style="background-color:#150E3780; color: #1A1A1A">you </span>
+<span style="background-color:white; color: #000000">write </span>
+<span style="background-color:#150E3780; color: #1A1A1A">shit </span>
+<span style="background-color:#150E3780; color: #1A1A1A">fuck </span>
+<span style="background-color:#CB3E7280; color: #080808">off </span>
+</p><p>
+<span style="background-color:#150E3780; color: #1A1A1A">Get </span>
+<span style="background-color:#150E3780; color: #1A1A1A">the </span>
+<span style="background-color:#150E3780; color: #1A1A1A">fuck </span>
+<span style="background-color:white; color: #000000">outta </span>
+<span style="background-color:; color: ">here </span>
+<span style="background-color:white; color: #000000">talking </span>
+<span style="background-color:white; color: #000000">bout </span>
+<span style="background-color:white; color: #000000">the </span>
+<span style="background-color:white; color: #000000">response </span>
+<span style="background-color:#150E3780; color: #1A1A1A">will </span>
+<span style="background-color:#150E3780; color: #1A1A1A">be </span>
+<span style="background-color:#150E3780; color: #1A1A1A">better </span>
+<span style="background-color:#150E3780; color: #1A1A1A">You </span>
+<span style="background-color:#150E3780; color: #1A1A1A">fucking </span>
+<span style="background-color:#150E3780; color: #1A1A1A">ignorant </span>
+<span style="background-color:#150E3780; color: #1A1A1A">stupid </span>
+<span style="background-color:#150E3780; color: #1A1A1A">asshole </span>
+</p>
+
+---
+
+### Appendix: Explainability II
+
+&lt;!-- * open black box algorithms --&gt;
+&lt;!-- * assessing local interpretation of predictions. --&gt;
+&lt;!-- * our examples --&gt;
+&lt;!-- * compare classifier --&gt;
+
+
+<center>
+<table id="tab1" style="font-size: 14px" class="ui compact table">
+<thead>
+<tr>
+<th>word</th>
+<th>glove</th>
+<th>lstm</th>
+<th>gru</th>
+<th>multi</th>
+<th>stacked</th>
+<th>grucnn</th>
+<th>ngram</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>Communist</th>
+<th>
+<div style="background-color:#F76F5C80">0.607</div>
+</th>
+<th>
+<div style="background-color:#150E3780">0.98</div>
+</th>
+<th>
+<div style="background-color:#51127C80">0.926</div>
+</th>
+<th>
+<div style="background-color:#150E3780">0.969</div>
+</th>
+<th>
+<div style="background-color:#51127C80">0.948</div>
+</th>
+<th>
+<div style="background-color:#51127C80">0.928</div>
+</th>
+<th>Communist control freak</th>
+</tr>
+<tr>
+<th>control</th>
+<th>
+<div style="background-color:#F76F5C80">0.584</div>
+</th>
+<th>
+<div style="background-color:#51127C80">0.89</div>
+</th>
+<th>
+<div style="background-color:#51127C80">0.925</div>
+</th>
+<th>
+<div style="background-color:#51127C80">0.911</div>
+</th>
+<th>
+<div style="background-color:#51127C80">0.912</div>
+</th>
+<th>
+<div style="background-color:#F76F5C80">0.633</div>
+</th>
+<th>control freak engineered</th>
+</tr>
+<tr>
+<th>freak</th>
+<th>
+<div style="background-color:#F76F5C80">0.61</div>
+</th>
+<th>
+<div style="background-color:#150E3780">0.994</div>
+</th>
+<th>
+<div style="background-color:#150E3780">0.98</div>
+</th>
+<th>
+<div style="background-color:#150E3780">0.999</div>
+</th>
+<th>
+<div style="background-color:#150E3780">0.989</div>
+</th>
+<th>
+<div style="background-color:#150E3780">0.995</div>
+</th>
+<th>freak engineered scum</th>
+</tr>
+<tr>
+<th>engineered</th>
+<th>
+<div style="background-color:#F76F5C80">0.554</div>
+</th>
+<th>
+<div style="background-color:#150E3780">0.955</div>
+</th>
+<th>
+<div style="background-color:#150E3780">0.978</div>
+</th>
+<th>
+<div style="background-color:#150E3780">0.997</div>
+</th>
+<th>
+<div style="background-color:#150E3780">0.974</div>
+</th>
+<th>
+<div style="background-color:#150E3780">0.973</div>
+</th>
+<th>engineered scum situation</th>
+</tr>
+<tr>
+<th>scum</th>
+<th>
+<div style="background-color:white">0.537</div>
+</th>
+<th>
+<div style="background-color:#51127C80">0.945</div>
+</th>
+<th>
+<div style="background-color:#150E3780">0.973</div>
+</th>
+<th>
+<div style="background-color:#150E3780">0.995</div>
+</th>
+<th>
+<div style="background-color:#150E3780">0.974</div>
+</th>
+<th>
+<div style="background-color:#150E3780">0.972</div>
+</th>
+<th>scum situation this</th>
+</tr>
+<tr>
+<th>situation</th>
+<th>
+<div style="background-color:white">0.519</div>
+</th>
+<th>
+<div style="background-color:white">0.159</div>
+</th>
+<th>
+<div style="background-color:white">0.066</div>
+</th>
+<th>
+<div style="background-color:white">0.311</div>
+</th>
+<th>
+<div style="background-color:white">0.253</div>
+</th>
+<th>
+<div style="background-color:white">0.27</div>
+</th>
+<th>situation this attack</th>
+</tr>
+<tr>
+<th>this</th>
+<th>
+<div style="background-color:white">0.536</div>
+</th>
+<th>
+<div style="background-color:white">0.107</div>
+</th>
+<th>
+<div style="background-color:white">0.071</div>
+</th>
+<th>
+<div style="background-color:white">0.179</div>
+</th>
+<th>
+<div style="background-color:white">0.339</div>
+</th>
+<th>
+<div style="background-color:white">0.267</div>
+</th>
+<th>this attack proves</th>
+</tr>
+<tr>
+<th>attack</th>
+<th>
+<div style="background-color:#F76F5C80">0.557</div>
+</th>
+<th>
+<div style="background-color:white">0.144</div>
+</th>
+<th>
+<div style="background-color:white">0.073</div>
+</th>
+<th>
+<div style="background-color:white">0.113</div>
+</th>
+<th>
+<div style="background-color:white">0.348</div>
+</th>
+<th>
+<div style="background-color:white">0.294</div>
+</th>
+<th>attack proves it's</th>
+</tr>
+<tr>
+<th>proves</th>
+<th>
+<div style="background-color:#F76F5C80">0.572</div>
+</th>
+<th>
+<div style="background-color:white">0.38</div>
+</th>
+<th>
+<div style="background-color:white">0.111</div>
+</th>
+<th>
+<div style="background-color:white">0.067</div>
+</th>
+<th>
+<div style="background-color:white">0.33</div>
+</th>
+<th>
+<div style="background-color:#CB3E7280">0.707</div>
+</th>
+<th>proves it's all</th>
+</tr>
+<tr>
+<th>it's</th>
+<th>
+<div style="background-color:white">0.546</div>
+</th>
+<th>
+<div style="background-color:white">0.309</div>
+</th>
+<th>
+<div style="background-color:white">0.068</div>
+</th>
+<th>
+<div style="background-color:white">0.126</div>
+</th>
+<th>
+<div style="background-color:white">0.204</div>
+</th>
+<th>
+<div style="background-color:white">0.07</div>
+</th>
+<th>it's all organized</th>
+</tr>
+<tr>
+<th>all</th>
+<th>
+<div style="background-color:#F76F5C80">0.558</div>
+</th>
+<th>
+<div style="background-color:white">0.142</div>
+</th>
+<th>
+<div style="background-color:white">0.07</div>
+</th>
+<th>
+<div style="background-color:white">0.105</div>
+</th>
+<th>
+<div style="background-color:white">0.187</div>
+</th>
+<th>
+<div style="background-color:">0.027</div>
+</th>
+<th>all organized ahead</th>
+</tr>
+<tr>
+<th>organized</th>
+<th>
+<div style="background-color:white">0.512</div>
+</th>
+<th>
+<div style="background-color:">0.039</div>
+</th>
+<th>
+<div style="background-color:white">0.062</div>
+</th>
+<th>
+<div style="background-color:">0.031</div>
+</th>
+<th>
+<div style="background-color:white">0.169</div>
+</th>
+<th>
+<div style="background-color:">0.009</div>
+</th>
+<th>organized ahead of</th>
+</tr>
+<tr>
+<th>ahead</th>
+<th>
+<div style="background-color:white">0.54</div>
+</th>
+<th>
+<div style="background-color:white">0.055</div>
+</th>
+<th>
+<div style="background-color:white">0.068</div>
+</th>
+<th>
+<div style="background-color:">0.036</div>
+</th>
+<th>
+<div style="background-color:white">0.264</div>
+</th>
+<th>
+<div style="background-color:white">0.14</div>
+</th>
+<th>ahead of time</th>
+</tr>
+<tr>
+<th>of</th>
+<th>
+<div style="background-color:white">0.524</div>
+</th>
+<th>
+<div style="background-color:white">0.189</div>
+</th>
+<th>
+<div style="background-color:white">0.068</div>
+</th>
+<th>
+<div style="background-color:white">0.094</div>
+</th>
+<th>
+<div style="background-color:white">0.35</div>
+</th>
+<th>
+<div style="background-color:white">0.193</div>
+</th>
+<th>of</th>
+</tr>
+<tr>
+<th>time</th>
+<th>
+<div style="background-color:white">0.528</div>
+</th>
+<th>
+<div style="background-color:white">0.17</div>
+</th>
+<th>
+<div style="background-color:white">0.073</div>
+</th>
+<th>
+<div style="background-color:">0.03</div>
+</th>
+<th>
+<div style="background-color:white">0.314</div>
+</th>
+<th>
+<div style="background-color:white">0.159</div>
+</th>
+<th>time</th>
+</tr>
+</tbody>
+</table>
+</center>
+
+&lt;!-- &lt;center&gt; --&gt;
+&lt;!-- &lt;img src = "images/mbo_search.png" width = "80%"&gt; --&gt;
+&lt;!-- &lt;/center&gt; --&gt;
+
+---
+
+### Appendix: Nullmodel
+
+
+![Random Intercept (User Audience)](index_files/figure-html/model0-1.png)
+
+---
+
+#### Appendix: Most Frequent Bigram Network - Jews
+
+&lt;center&gt; &lt;img src="../images/jew_bigram_network.png" width = "95%"&gt; &lt;/center&gt;
+
+---
+
+#### Appendix: Most Frequent Bigram Network - Migrants
+
+&lt;center&gt; &lt;img src="../images/migrant_bigram_network.png" width = "95%"&gt; &lt;/center&gt;
     </textarea>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script>var slideshow = remark.create({
