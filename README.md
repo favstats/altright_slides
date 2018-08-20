@@ -1,1 +1,0 @@
-# altright_slides
